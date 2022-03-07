@@ -53,10 +53,26 @@
 
         <script type="text/javascript" src="./node_modules/jquery/dist/jquery.min.js"></script>
         <script type="text/javascript" src="./node_modules/golden-layout/dist/goldenlayout.min.js"></script>
-        <link type="text/css" rel="stylesheet" href="./node_modules/golden-layout/src/css/goldenlayout-base.css" />
-        <link type="text/css" rel="stylesheet" href="./node_modules/golden-layout/src/css/goldenlayout-dark-theme.css" />
         <link type="text/css" rel="stylesheet" href="./css/main.css" />
-
+        <link type="text/css" rel="stylesheet" href="./node_modules/golden-layout/src/css/goldenlayout-base.css" />
+        <script type="text/javascript">
+            let path = './node_modules/golden-layout/src/css/goldenlayout-dark-theme.css';
+            const mode = getComputedStyle(document.documentElement).getPropertyValue('content');
+            if (mode === "\"light\"") {
+                path = './node_modules/golden-layout/src/css/goldenlayout-light-theme.css';
+            }
+            //https://stackoverflow.com/questions/18510347/dynamically-load-stylesheets
+            (function(){
+                var styles = document.createElement('link');
+                styles.rel = 'stylesheet';
+                styles.type = 'text/css';
+                styles.media = 'screen';
+                styles.href = path;
+            document.getElementsByTagName('head')[0].appendChild(styles);
+            })();
+        </script>
+        <!---link type="text/css" rel="stylesheet" href="./node_modules/golden-layout/src/css/goldenlayout-light-theme.css" /-->
+        
         <script type="text/javascript" src="./node_modules/rawflate/rawdeflate.js"></script>
         <script type="text/javascript" src="./node_modules/rawflate/rawinflate.js"></script>
         <script type="text/javascript" src="./js/MainPage/CascadeViewHandles.js"></script>

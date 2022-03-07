@@ -1,13 +1,13 @@
 /* Add a black background color to the top navigation */
 .topnav {
-  background-color: #111;
+  background-color: #181A21; /* match macOS Chrome URL bar dark-mode background-color */
   overflow: hidden;
 }
 
 /* Style the links inside the navigation bar */
 .topnav a, .topnav label {
   float: left;
-  color: #f2f2f2;
+  color: #FFFFFF; /* match macOS Chrome URL bar bdark-mode color */
   text-align: center;
   padding: 4px 16px;
   text-decoration: none;
@@ -62,4 +62,70 @@
 }
 .tp-rotv button {
   text-shadow: inherit;
+}
+
+
+
+@media (prefers-color-scheme: light) {
+
+  html {
+    content: "light"; /* (ab)using the content property */
+  }
+
+  .topnav {
+    background-color: #FFFFFF;
+  }
+
+.topnav a, .topnav label {
+  color: black;
+  }
+
+  .topnav a:hover, .topnav label:hover {
+    background-color: #aaa;
+    color: black;
+  }
+  
+  .topnav a.active, label.active {
+    background-color: #4CAF50;
+    color: white;
+  }
+ 
+  .centered {
+    background: rgb(19, 19, 19);
+    color: white;
+  }
+
+
+  /* TweakPane theme */
+:root {
+  --tp-base-background-color: #eeeeee;
+  --tp-button-background-color: hsl(0, 0%, 75%);
+  --tp-button-background-color-active: hsl(0, 0%, 60%);
+  --tp-button-background-color-focus: hsl(0, 0%, 65%);
+  --tp-button-background-color-hover: hsl(0, 0%, 70%);
+  --tp-button-foreground-color: #2e2e2e;
+  --tp-label-foreground-color: #2e2e2e;
+}
+
+
+.gui-panel {
+  position: absolute;
+  right: 0;
+  max-height: 100%;
+  overflow-y: auto;
+}
+.gui-panel::-webkit-scrollbar {
+  width: 10px;
+  background: var(--tp-base-background-color);
+}
+.gui-panel::-webkit-scrollbar-thumb {
+  background: #777;
+}
+.tp-rotv {
+  text-shadow: 1px 1px #F3F3F3;
+}
+.tp-rotv button {
+  text-shadow: inherit;
+}
+  
 }

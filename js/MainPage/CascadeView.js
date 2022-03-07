@@ -7,6 +7,19 @@ var Environment = function (goldenContainer) {
   this.goldenContainer = goldenContainer;
 
   this.initEnvironment = function () {
+
+    // colors - default is dark-mode
+
+    this.backgroundColor = 0x222222; //0xa0a0a0
+    this.groundMeshColor = 0x080808;
+
+    const mode = getComputedStyle(document.documentElement).getPropertyValue('content');
+    if (mode === "\"light\"") {
+      this.backgroundColor = 0x87cefa; // light sky blue
+      this.groundMeshColor = 0x1a658f;
+    }
+
+
     // Get the current Width and Height of the Parent Element
     this.parentWidth  = this.goldenContainer.width;
     this.parentHeight = this.goldenContainer.height;
@@ -20,7 +33,6 @@ var Environment = function (goldenContainer) {
 
     // Create the Three.js Scene
     this.scene = new THREE.Scene();
-    this.backgroundColor  = 0x222222; //0xa0a0a0
     this.scene.background = new THREE.Color(this.backgroundColor);          
     this.scene.fog        = new THREE.Fog  (this.backgroundColor, 200, 600);
 
@@ -54,7 +66,8 @@ var Environment = function (goldenContainer) {
     // Create the ground mesh
     this.groundMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(2000, 2000),
       new THREE.MeshPhongMaterial({
-        color: 0x080808, depthWrite: true, dithering: true,
+        color: this.groundMeshColor,
+        depthWrite: true, dithering: true,
         polygonOffset: true, // Push the mesh back for line drawing
         polygonOffsetFactor: 6.0, polygonOffsetUnits: 1.0
       }));
@@ -105,7 +118,7 @@ var Environment = function (goldenContainer) {
 }
 
 /** This "inherits" from Environment (by including it as a sub object) */
-var CascadeEnvironment = function (goldenContainer) {
+var CascadeEnvironment = function (goldenContainer, monacoEditorTheme) {
   this.active          = true;
   this.goldenContainer = goldenContainer;
   this.environment     = new Environment(this.goldenContainer);
@@ -124,7 +137,7 @@ var CascadeEnvironment = function (goldenContainer) {
   this.loader = new THREE.TextureLoader(); this.loader.setCrossOrigin ('');
   this.matcap = this.loader.load('./textures/dullFrontLitMetal.png', (tex) => { this.environment.viewDirty = true; } );
   this.matcapMaterial = new THREE.MeshMatcapMaterial({
-                          color: new THREE.Color(0xf5f5f5),
+                          color: new THREE.Color("yellow"),
                           matcap: this.matcap,
                           polygonOffset: true, // Push the mesh back for line drawing
                           polygonOffsetFactor: 2.0,

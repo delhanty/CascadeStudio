@@ -30,7 +30,21 @@ Translate([-25, 0, 40], Text3D("Hi!", 36, 0.15, 'Consolas'));
 
 // Don't forget to push imported or oc-defined shapes into sceneShapes to add them to the workspace!`;
 
+// Theme for Monacor Editor (VSCode)
+function getTheme() {
+    // export type BuiltinTheme = 'vs' | 'vs-dark' | 'hc-black';
+    let theme = "vs-dark"; // default
+    const mode = getComputedStyle(document.documentElement).getPropertyValue('content');
+    if (mode === "\"light\"") {
+        theme = "vs";
+    }
+    return theme;
+}
+
 function initialize(projectContent = null) {
+
+    let monacoEditorTheme = getTheme();
+
     this.searchParams = new URLSearchParams(window.location.search || window.location.hash.substr(1))
 
     // Load the initial Project from - "projectContent", or the URL
@@ -153,7 +167,7 @@ function initialize(projectContent = null) {
             monacoEditor = monaco.editor.create(container.getElement().get(0), {
                 value: state.code,
                 language: "typescript",
-                theme: "vs-dark",
+                theme: monacoEditorTheme,
                 automaticLayout: true,
                 minimap: { enabled: false }//,
                 //model: null
@@ -309,7 +323,7 @@ function initialize(projectContent = null) {
             floatingGUIContainer.className = 'gui-panel';
             floatingGUIContainer.id = "guiPanel";
             container.getElement().get(0).appendChild(floatingGUIContainer);
-            threejsViewport = new CascadeEnvironment(container);
+            threejsViewport = new CascadeEnvironment(container, monacoEditorTheme);
         });
     });
 
@@ -340,7 +354,7 @@ function initialize(projectContent = null) {
             console.log = function (message) {
                 let newline = document.createElement("div");
                 newline.style.fontFamily = "monospace";
-                newline.style.color = (alternatingColor = !alternatingColor) ? "LightGray" : "white";
+                newline.style.color = (alternatingColor = !alternatingColor) ? "DarkGray" : "black";
                 newline.style.fontSize = "1.2em";
                 if (message !== undefined) {
                     let messageText = JSON.stringify(message, getCircularReplacer());
