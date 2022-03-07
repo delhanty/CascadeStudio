@@ -30,20 +30,23 @@ Translate([-25, 0, 40], Text3D("Hi!", 36, 0.15, 'Consolas'));
 
 // Don't forget to push imported or oc-defined shapes into sceneShapes to add them to the workspace!`;
 
+// export type BuiltinTheme = 'vs' | 'vs-dark' | 'hc-black';
+const MONACO_BUILTIN_THEME_VS       = "vs";
+const MONACO_BUILTIN_THEME_VS_DARK  = "vs-dark";
+const MONACO_BUILTIN_THEME_HC_BLACK = "hc-black";
+
+
 // Theme for Monacor Editor (VSCode)
-function getTheme() {
-    // export type BuiltinTheme = 'vs' | 'vs-dark' | 'hc-black';
-    let theme = "vs-dark"; // default
+function getMonacoEditorTheme() {
+    let theme = MONACO_BUILTIN_THEME_VS_DARK; // default
     const mode = getComputedStyle(document.documentElement).getPropertyValue('content');
     if (mode === "\"light\"") {
-        theme = "vs";
+        theme = MONACO_BUILTIN_THEME_VS;
     }
     return theme;
 }
 
 function initialize(projectContent = null) {
-
-    let monacoEditorTheme = getTheme();
 
     this.searchParams = new URLSearchParams(window.location.search || window.location.hash.substr(1))
 
@@ -167,7 +170,7 @@ function initialize(projectContent = null) {
             monacoEditor = monaco.editor.create(container.getElement().get(0), {
                 value: state.code,
                 language: "typescript",
-                theme: monacoEditorTheme,
+                theme: getMonacoEditorTheme(),
                 automaticLayout: true,
                 minimap: { enabled: false }//,
                 //model: null
@@ -228,6 +231,18 @@ function initialize(projectContent = null) {
                 });
                 guiSeparatorAdded = false;
                 userGui = false;
+
+                messageHandlers["addDropdownWithCallback"]({ name: "Theme",
+                    default: getMonacoEditorTheme(),
+                    options: { 
+                        "Dark":                 MONACO_BUILTIN_THEME_VS_DARK,
+                        "High-constrast black": MONACO_BUILTIN_THEME_HC_BLACK,
+                        "Light":                MONACO_BUILTIN_THEME_VS
+
+                    },
+                    callback: () => { 
+                        monaco.editor.theme = MONACO_BUILTIN_THEME_VS_DARK;
+                    }});
                 messageHandlers["addButton"]({ name: "Evaluate", label: "Function", callback: () => { monacoEditor.evaluateCode(true) } });
                 messageHandlers["addSlider"]({ name: "MeshRes", default: 0.1, min: 0.01, max: 2, step: 0.01, dp: 2 });
                 messageHandlers["addCheckbox"]({ name: "Cache?", default: true });
@@ -323,7 +338,7 @@ function initialize(projectContent = null) {
             floatingGUIContainer.className = 'gui-panel';
             floatingGUIContainer.id = "guiPanel";
             container.getElement().get(0).appendChild(floatingGUIContainer);
-            threejsViewport = new CascadeEnvironment(container, monacoEditorTheme);
+            threejsViewport = new CascadeEnvironment(container, getMonacoEditorTheme());
         });
     });
 
@@ -347,6 +362,11 @@ function initialize(projectContent = null) {
             };
         };
 
+        const theme      = getMonacoEditorTheme();
+        const color0     = (MONACO_BUILTIN_THEME_VS === theme) ? "DarkBlue" : "LightGray";
+        const color1     = (MONACO_BUILTIN_THEME_VS === theme) ? "Black"    : "White";
+        const colorError = "Red";
+
         // Overwrite the existing logging/error behaviour to print messages to the Console window
         if (!realConsoleLog) {
             let alternatingColor = true;
@@ -354,7 +374,7 @@ function initialize(projectContent = null) {
             console.log = function (message) {
                 let newline = document.createElement("div");
                 newline.style.fontFamily = "monospace";
-                newline.style.color = (alternatingColor = !alternatingColor) ? "DarkGray" : "black";
+                newline.style.color = (alternatingColor = !alternatingColor) ? color0 : color1;
                 newline.style.fontSize = "1.2em";
                 if (message !== undefined) {
                     let messageText = JSON.stringify(message, getCircularReplacer());
@@ -374,7 +394,7 @@ function initialize(projectContent = null) {
             // Print Errors in Red
             window.onerror = function (err, url, line, colno, errorObj) {
                 let newline = document.createElement("div");
-                newline.style.color = "red";
+                newline.style.color = colorError;
                 newline.style.fontFamily = "monospace";
                 newline.style.fontSize = "1.2em";
                 let errorText = JSON.stringify(err, getCircularReplacer());
@@ -507,6 +527,21 @@ function initialize(projectContent = null) {
 
         addGuiSeparator();
         const input = gui.addInput(GUIState, payload.name, { options })
+        if (payload.realTime) {
+            input.on('change', e => {
+                if (e.last) {
+                    delayReloadEditor();
+                }
+            })
+        }
+    }
+
+    messageHandlers['addDropdownWithCallback'] = (payload) => {
+        if (!(payload.name in GUIState)) { GUIState[payload.name] = payload.default || ''; }
+        const options = payload.options || {}
+
+        addGuiSeparator();
+        const input = gui.addInput(GUIState, payload.name, { options }).on('change', payload.callback);
         if (payload.realTime) {
             input.on('change', e => {
                 if (e.last) {
