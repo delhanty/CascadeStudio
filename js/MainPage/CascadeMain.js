@@ -240,8 +240,8 @@ function initialize(projectContent = null) {
                         "Light":                MONACO_BUILTIN_THEME_VS
 
                     },
-                    callback: () => { 
-                        monaco.editor.theme = MONACO_BUILTIN_THEME_VS_DARK;
+                    callback: (ev) => { 
+                        monaco.editor.setTheme(ev.value);
                     }});
                 messageHandlers["addButton"]({ name: "Evaluate", label: "Function", callback: () => { monacoEditor.evaluateCode(true) } });
                 messageHandlers["addSlider"]({ name: "MeshRes", default: 0.1, min: 0.01, max: 2, step: 0.01, dp: 2 });
