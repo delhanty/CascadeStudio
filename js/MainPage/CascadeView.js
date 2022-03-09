@@ -3,22 +3,45 @@
 
 /** Create the base class for a 3D Viewport.
  *  This includes the floor, the grid, the fog, the camera, and lights */
-var Environment = function (goldenContainer) {
+var Environment = function (goldenContainer, colorTheme0) {
   this.goldenContainer = goldenContainer;
 
-  this.initEnvironment = function () {
+  this.setColorTheme = function(colorTheme1) {
 
-    // colors - default is dark-mode
-
-    this.backgroundColor = 0x222222; //0xa0a0a0
-    this.groundMeshColor = 0x080808;
-
-    const mode = getComputedStyle(document.documentElement).getPropertyValue('content');
-    if (mode === "\"light\"") {
+    if (MONACO_BUILTIN_THEME_VS === colorTheme1) {
       this.backgroundColor = 0x87cefa; // light sky blue
       this.groundMeshColor = 0x1a658f;
     }
+    else {
+      // colors - default is dark-mode
+      this.backgroundColor = 0x222222; //0xa0a0a0
+      this.groundMeshColor = 0x080808;
+    }
+  }
 
+
+  this.createFog = function() {
+    return new THREE.Fog  (this.backgroundColor, 200, 600);
+  }
+  this.createGroundMeshMaterial = function() {
+    return new THREE.MeshPhongMaterial({
+      color: this.groundMeshColor,
+      depthWrite: true, dithering: true,
+      polygonOffset: true, // Push the mesh back for line drawing
+      polygonOffsetFactor: 6.0, polygonOffsetUnits: 1.0
+    });
+  }
+
+  this.updateColorTheme = function(colorTheme1) {
+
+    this.setColorTheme(colorTheme1);
+    this.scene.background.set(this.backgroundColor);          
+    this.scene.fog           = this.createFog();
+    this.groundMesh.material = this.createGroundMeshMaterial();
+    this.viewDirty           = true;
+  }
+
+  this.initEnvironment = function () {
 
     // Get the current Width and Height of the Parent Element
     this.parentWidth  = this.goldenContainer.width;
@@ -31,10 +54,13 @@ var Environment = function (goldenContainer) {
     this.renderer.setPixelRatio(window.devicePixelRatio); this.renderer.setSize(this.parentWidth, this.parentHeight);
     this.goldenContainer.on('resize', this.onWindowResize.bind(this));
 
+    // Theme needs to be set before creating the scene
+    this.setColorTheme(colorTheme0);
+
     // Create the Three.js Scene
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(this.backgroundColor);          
-    this.scene.fog        = new THREE.Fog  (this.backgroundColor, 200, 600);
+    this.scene.fog        = this.createFog();
 
     this.camera = new THREE.PerspectiveCamera (45, 1, 1, 5000);
                 //new THREE.OrthographicCamera(300 / - 2, 300 / 2, 300 / 2, 300 / - 2, 1, 1000);
@@ -65,12 +91,7 @@ var Environment = function (goldenContainer) {
 
     // Create the ground mesh
     this.groundMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(2000, 2000),
-      new THREE.MeshPhongMaterial({
-        color: this.groundMeshColor,
-        depthWrite: true, dithering: true,
-        polygonOffset: true, // Push the mesh back for line drawing
-        polygonOffsetFactor: 6.0, polygonOffsetUnits: 1.0
-      }));
+      this.createGroundMeshMaterial());
     this.groundMesh.position.y = -0.1;
     this.groundMesh.rotation.x = - Math.PI / 2;
     this.groundMesh.receiveShadow = true;
@@ -118,10 +139,14 @@ var Environment = function (goldenContainer) {
 }
 
 /** This "inherits" from Environment (by including it as a sub object) */
-var CascadeEnvironment = function (goldenContainer, monacoEditorTheme) {
+var CascadeEnvironment = function (goldenContainer, colorTheme) {
   this.active          = true;
   this.goldenContainer = goldenContainer;
-  this.environment     = new Environment(this.goldenContainer);
+  this.environment     = new Environment(this.goldenContainer, colorTheme);
+
+  this.updateColorTheme = function(colorTheme1) {
+    this.environment.updateColorTheme(colorTheme1);
+  }
 
   // State for the Hover Highlighting
   this.raycaster       = new THREE.Raycaster();

@@ -35,9 +35,11 @@ const MONACO_BUILTIN_THEME_VS       = "vs";
 const MONACO_BUILTIN_THEME_VS_DARK  = "vs-dark";
 const MONACO_BUILTIN_THEME_HC_BLACK = "hc-black";
 
+let   colorTheme                    = getPreferredColorTheme();
+
 
 // Theme for Monacor Editor (VSCode)
-function getMonacoEditorTheme() {
+function getPreferredColorTheme() {
     let theme = MONACO_BUILTIN_THEME_VS_DARK; // default
     const mode = getComputedStyle(document.documentElement).getPropertyValue('content');
     if (mode === "\"light\"") {
@@ -170,7 +172,7 @@ function initialize(projectContent = null) {
             monacoEditor = monaco.editor.create(container.getElement().get(0), {
                 value: state.code,
                 language: "typescript",
-                theme: getMonacoEditorTheme(),
+                theme: colorTheme,
                 automaticLayout: true,
                 minimap: { enabled: false }//,
                 //model: null
@@ -233,7 +235,7 @@ function initialize(projectContent = null) {
                 userGui = false;
 
                 messageHandlers["addDropdownWithCallback"]({ name: "Theme",
-                    default: getMonacoEditorTheme(),
+                    default: colorTheme,
                     options: { 
                         "Dark":                 MONACO_BUILTIN_THEME_VS_DARK,
                         "High-constrast black": MONACO_BUILTIN_THEME_HC_BLACK,
@@ -242,6 +244,7 @@ function initialize(projectContent = null) {
                     },
                     callback: (ev) => { 
                         monaco.editor.setTheme(ev.value);
+                        threejsViewport.updateColorTheme(ev.value);
                     }});
                 messageHandlers["addButton"]({ name: "Evaluate", label: "Function", callback: () => { monacoEditor.evaluateCode(true) } });
                 messageHandlers["addSlider"]({ name: "MeshRes", default: 0.1, min: 0.01, max: 2, step: 0.01, dp: 2 });
@@ -338,7 +341,7 @@ function initialize(projectContent = null) {
             floatingGUIContainer.className = 'gui-panel';
             floatingGUIContainer.id = "guiPanel";
             container.getElement().get(0).appendChild(floatingGUIContainer);
-            threejsViewport = new CascadeEnvironment(container, getMonacoEditorTheme());
+            threejsViewport = new CascadeEnvironment(container, colorTheme);
         });
     });
 
@@ -362,9 +365,8 @@ function initialize(projectContent = null) {
             };
         };
 
-        const theme      = getMonacoEditorTheme();
-        const color0     = (MONACO_BUILTIN_THEME_VS === theme) ? "DarkBlue" : "LightGray";
-        const color1     = (MONACO_BUILTIN_THEME_VS === theme) ? "Black"    : "White";
+        const color0     = (MONACO_BUILTIN_THEME_VS === colorTheme) ? "DarkBlue" : "LightGray";
+        const color1     = (MONACO_BUILTIN_THEME_VS === colorTheme) ? "Black"    : "White";
         const colorError = "Red";
 
         // Overwrite the existing logging/error behaviour to print messages to the Console window
