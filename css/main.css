@@ -12,7 +12,7 @@
   padding: 4px 16px;
   text-decoration: none;
   font-size: 14px;
-  font-family: Consolas;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", "Open Sans", Oxygen, Cantarell, sans-serif;
 }
 
 /* Change the color of links on hover */
@@ -35,7 +35,7 @@
 
 /* TweakPane theme */
 :root {
-  --tp-font-family: Arial, sans-serif;
+  --tp-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", "Open Sans", Oxygen, Cantarell, sans-serif;
   --tp-base-background-color: #2e2e2e;
   --tp-button-background-color: hsl(0, 0%, 25%);
   --tp-button-background-color-active: hsl(0, 0%, 40%);
